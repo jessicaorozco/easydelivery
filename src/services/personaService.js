@@ -10,8 +10,8 @@ const createPersona = async (req, res) => {
     try {
       await client.connect();
       const newPerson = new Persona(req.body);
-      const coll = client.db('isoDb').collection('persona');
-      const usuario = client.db('isoDb').collection('user');
+      const coll = client.db('easyDb').collection('persona');
+      const usuario = client.db('easyDb').collection('user');
       const result = await coll.insertOne(newPerson);
       const newUser = ({
        email:req.body.vEmail,
@@ -33,7 +33,7 @@ const getPersonaById = async (req, res) => {
   const client = await MongoClient.connect(process.env.URI);
   try {
     const personId = req.params.id;
-    const db = client.db('isoDb');
+    const db = client.db('easyDb');
     const collection = db.collection('persona');
     const filter = { _id: new ObjectId(personId) }; 
     const persona = await collection.findOne(filter);
@@ -59,7 +59,7 @@ const getAllPersonas = async (req, res) => {
         try {
           await client.connect();
           const filter = {};
-          const persons = client.db('isoDb').collection('persona');
+          const persons = client.db('easyDb').collection('persona');
           const cursor = persons.find(filter);
           const data = await cursor.toArray();
           res.status(200).json(data);
@@ -80,7 +80,7 @@ const updatePersona = async (req, res) => {
   );
 try {
 await client.connect();
-const db = client.db('isoDb'); 
+const db = client.db('easyDb'); 
 const collection = db.collection('company');
 const personId = req.params._id; 
 const updatedPerson = req.body;
@@ -123,7 +123,7 @@ const deletePersona = async (req, res) => {
   );
   try {
     await client.connect();
-    const db = client.db('isoDb'); 
+    const db = client.db('easyDb'); 
     const persons = db.collection('iso');
     const personId = req.params.id; 
     const filter = { _id: new ObjectId(personId) }; 

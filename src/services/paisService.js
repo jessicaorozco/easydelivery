@@ -9,7 +9,7 @@ const createPais = async (req, res) => {
     try {
       await client.connect();
       const newPais = new Pais(req.body);
-      const coll = client.db('isoDb').collection('pais');
+      const coll = client.db('easyDb').collection('pais');
       const result = await coll.insertOne(newPais);
       console.log(`New user inserted with ID: ${result.insertedId}`);
       res.status(201).json({ message: 'Country created successfully' });
@@ -25,7 +25,7 @@ const getPaisById = async (req, res) => {
   const client = await MongoClient.connect(process.env.URI);
   try {
     const paisId = req.params.id;
-    const db = client.db('isoDb');
+    const db = client.db('easyDb');
     const collection = db.collection('pais');
     const filter = { _id: new ObjectId(paisId) }; 
     const pais = await collection.findOne(filter);
@@ -50,7 +50,7 @@ const getAllPais = async (req, res) => {
         try {
           await client.connect();
           const filter = {};
-          const coll = client.db('isoDb').collection('pais');
+          const coll = client.db('easyDb').collection('pais');
           const cursor = coll.find(filter);
           const data = await cursor.toArray();
           // console.log(result);
@@ -71,7 +71,7 @@ const updatePais = async (req, res) => {
   );
 try {
 await client.connect();
-const db = client.db('isoDb'); 
+const db = client.db('easyDb'); 
 const collection = db.collection('pais');
 const paisId = req.params.id; 
 const updatedPais = req.body;
@@ -97,7 +97,7 @@ const deletePais = async (req, res) => {
   );
   try {
     await client.connect();
-    const db = client.db('isoDb'); 
+    const db = client.db('easyDb'); 
     const collection = db.collection('user');
     const paisId = req.params.id; 
     const filter = { _id: new ObjectId(paisId) }; 
