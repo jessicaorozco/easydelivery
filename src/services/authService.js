@@ -76,6 +76,73 @@ const loginLocal = async (req, res) => {
   );
 };
 
+
+// async function login(req, res) {
+//   const { email, password } = req.body;
+
+//   // Basic email validation (can be improved)
+//   if (!email) {
+//     return res.status(400).json({ error: 'Invalid email format' });
+//   }
+
+//   try {
+//     const user = await this.userService.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({ error: 'Invalid email or password' }); // Avoid revealing if email exists
+//     }
+
+//     const validPassword = await user.isValidPassword(password);
+//     if (!validPassword) {
+//       return res.status(401).json({ error: 'Invalid email or password' });
+//     }
+
+//     return res.status(200).json({ message: 'Login successful' }); 
+//   } catch (error) {
+//     console.error('Error during login:', error);
+//     return res.status(500).json({ error: 'Internal server error' });
+//   }
+// }
+
+const login = async (req, res) => {
+  passport.use(
+    'login',
+    new LocalStrategy(
+      {
+        usernameField: "email",
+        passwordField: "password",
+      },
+      async (email, password, done) => {
+        const client = await MongoClient.connect(process.env.URI);
+        try {
+          const correo = req.body.email;
+          const clave = req.body.password;
+          const db = client.db("easyDb");
+          const collection = db.collection("user");
+          const filter = { email: correo, password: clave };
+          const user = await collection.findOne(filter);
+
+          if (!user) {
+            return done(null, false, { message: "User not found" });
+          }
+
+          const isMatch = await bcrypt.compare(password, user.password);
+          if (!isMatch) {
+            return done(null, false, { message: "Incorrect password" });
+          }
+
+          return done(null, user);
+        } catch (error) {
+          console.error("Error fetching iso:", error);
+          res.status(500).json({ error: "Internal server error" });
+        } finally {
+          await client?.close();
+        }
+      }
+    )
+  );
+};
+
+
 const getTokenJwt = async (req, res) => {
   try {
     const payload = {
@@ -140,6 +207,20 @@ const receipJwt = async(req, res) => {
   })(req, res);
 };
 
+function authenticateToken(req, res) {
+  // Extraer el token del encabezado de autorización
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) return res.sendStatus(401); // No se proporcionó   
+ token
+
+  jwt.verify(token, localStorage.getItem(''), (err, user) => {
+    if (err) return res.sendStatus(403); // Token inválido o ha expirado
+    req.user = user;
+  });
+}
+
 // const generateToken = async(req, res) => {
 // const opts = {};
 // opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -172,7 +253,7 @@ const generateToken = async (req, res) => {
   try {
     const { email, password } = req.body; 
 
-    const user = userService.findByEmail(email);
+    const user = userService.getEmail(email);
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' }); 
@@ -226,6 +307,7 @@ const signToken = async (payload, secret) => {
 };
 
 
+
 module.exports = {
   passport,
   generateToken,
@@ -233,5 +315,7 @@ module.exports = {
   loginOther,
   receipJwt,
   loginLocal,
-  getTokenJwt
+  getTokenJwt,
+  login,
+  authenticateToken
 };

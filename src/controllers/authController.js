@@ -33,13 +33,13 @@ router.post('/up', async (req, res) => {
     }
   });
   
-  // router.get('/login', async (req, res) => {
-  //   try {
-  //     await authService.loginLocal(req, res);
-  //   } catch (error) {
-  //     res.status(error.statusCode || 500).json({ error: error.message });
-  //   }
-  // });
+  router.post('/auth', async (req, res) => {
+    try {
+      await authService.login(req, res);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  });
 
   router.post('/local', async (req, res) => {
     try {
@@ -89,10 +89,31 @@ router.post('/up', async (req, res) => {
     }
   });
  
-  router.get('/protected', passport.authenticate('oauth2', { session: false }), (req, res) => {
-    res.json({ message: 'Acceso concedido' });
-  });
+  // router.get('/protected', passport.authenticate('oauth2', { session: false }), (req, res) => {
+  //   res.json({ message: 'Acceso concedido' });
+  // });
+
+  // router.get("/protected", verifyToken, (req, res) => {
+  //   return res.status(200).json({ message: "You have access" });
+  // });
 
 
+  // router.get('/user', authenticateToken, authorize(['admin']), async (req, res) => {
+  //   try {
+  //     // Validar datos de la solicitud (si los hay)
+  //     const { page, limit } = req.query;
+  //     const validatedData = validatePaginationParams(page, limit); // Función de validación
+  
+  //     // Obtener usuarios de la base de datos
+  //     const users = await User.find().skip(validatedData.skip).limit(validatedData.limit);
+  
+  //     res.json(users);
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ message: 'Error al obtener usuarios' });  
+  //   }
+  // });
+
+  
 
   module.exports = router;

@@ -20,8 +20,27 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(cors())
 
+function verifyToken(req, res, next) {
+  const header = req.header("Authorization") || "";
+  const token = header.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Token not provied" });
+  }
+  try {
+    const payload = jwt.verify(token, secretKey);
+    req.username = payload.username;
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Token not valid" });
+  }
+}
+
+app.get("/protected", verifyToken, (req, res) => {
+  return res.status(200).json({ message: "You have access" });
+});
+
 passport.use(
-  'login',
+  'oauth2',
   new OAuth2Strategy({
     authorizationURL: process.env.AUTHORIZATION_URL,
     tokenURL: process.env.TOKEN_URL,
@@ -37,7 +56,7 @@ function(accessToken, refreshToken, profile, cb) {
 app.get('/auth/callback', 
   passport.authenticate('oauth2', { failureRedirect: '/' }),
   function(req, res) {
-      res.redirect('/');
+      res.redirect('/dashboard');
   }
 
 );
@@ -45,6 +64,7 @@ app.get('/auth/callback',
 app.use(errorHandler);
 
 // Routes
+
 
 app.use('/auth/provider', passport.authenticate('oauth2'));
 app.use('/user', userController);
