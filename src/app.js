@@ -10,9 +10,12 @@ const userController = require('./controllers/userController');
 const authController = require('./controllers/authController');
 const personaController = require('./controllers/personaController');
 const paisController = require('./controllers/paisController');
+const packageJson = require('../package.json');
 
 const port = process.env.PORT || 3001;
 const cors  = require('cors');
+
+const appVersion = process.env.APP_VERSION || packageJson.version;
 
 const app = express();
 app.use(express.json()); 
@@ -65,14 +68,15 @@ app.use(errorHandler);
 
 // Routes
 
-
 app.use('/auth/provider', passport.authenticate('oauth2'));
 app.use('/user', userController);
 app.get('/', (req, res) => res.send('Easyapp Backend!'));
 app.use('/auth', authController);
 app.use('/persona', personaController);
 app.use('/pais', paisController);
-
+app.get('/version', (req, res) => {
+  res.json(`versión ${appVersion}` );
+});
 app.get('/', (req, res) => res.send('Easyapp Backend!'));
 app.get('/user', userController);
 

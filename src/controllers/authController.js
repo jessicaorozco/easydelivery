@@ -35,7 +35,7 @@ router.post('/up', async (req, res) => {
   
   router.post('/auth', async (req, res) => {
     try {
-      await authService.login(req, res);
+      await authService.loginSendData(req, res);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
