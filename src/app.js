@@ -10,9 +10,12 @@ const userController = require('./controllers/userController');
 const authController = require('./controllers/authController');
 const personaController = require('./controllers/personaController');
 const paisController = require('./controllers/paisController');
+const packageJson = require('../package.json');
 
 const port = process.env.PORT || 3001;
 const cors  = require('cors');
+
+const appVersion = process.env.APP_VERSION || packageJson.version;
 
 const app = express();
 app.use(express.json()); 
@@ -20,8 +23,27 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(cors())
 
+function verifyToken(req, res, next) {
+  const header = req.header("Authorization") || "";
+  const token = header.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Token not provied" });
+  }
+  try {
+    const payload = jwt.verify(token, secretKey);
+    req.username = payload.username;
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Token not valid" });
+  }
+}
+
+app.get("/protected", verifyToken, (req, res) => {
+  return res.status(200).json({ message: "You have access" });
+});
+
 passport.use(
-  'login',
+  'oauth2',
   new OAuth2Strategy({
     authorizationURL: process.env.AUTHORIZATION_URL,
     tokenURL: process.env.TOKEN_URL,
@@ -37,7 +59,7 @@ function(accessToken, refreshToken, profile, cb) {
 app.get('/auth/callback', 
   passport.authenticate('oauth2', { failureRedirect: '/' }),
   function(req, res) {
-      res.redirect('/');
+      res.redirect('/dashboard');
   }
 
 );
@@ -52,7 +74,9 @@ app.get('/', (req, res) => res.send('Easyapp Backend!'));
 app.use('/auth', authController);
 app.use('/persona', personaController);
 app.use('/pais', paisController);
-
+app.get('/version', (req, res) => {
+  res.json(`versión ${appVersion}` );
+});
 app.get('/', (req, res) => res.send('Easyapp Backend!'));
 app.get('/user', userController);
 

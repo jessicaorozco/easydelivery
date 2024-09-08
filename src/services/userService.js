@@ -10,7 +10,7 @@ const client = await MongoClient.connect(
   try {
     await client.connect();
     const newUser = new User(req.body);
-    const coll = client.db('isoDb').collection('user');
+    const coll = client.db('easyDb').collection('user');
     const result = await coll.insertOne(newUser);
     console.log(`New user inserted with ID: ${result.insertedId}`);
     res.status(201).json({ message: 'User created successfully' });
@@ -26,7 +26,7 @@ const getUserById = async (req, res) => {
   const client = await MongoClient.connect(process.env.URI);
   try {
     const userId = req.params.id;
-    const db = client.db('isoDb');
+    const db = client.db('easyDb');
     const collection = db.collection('user');
     const filter = { _id: new ObjectId(userId) }; 
     const user = await collection.findOne(filter);
@@ -49,7 +49,7 @@ const getEmail = async (req, res) => {
   try {
           const correo = req.body.email;
           const filter = {email: correo};
-          const coll = client.db('isoDb').collection('user');
+          const coll = client.db('easyDb').collection('user');
           const user = coll.find(filter);
           const data = await user.toArray();
           // console.log(result);
@@ -73,7 +73,7 @@ const getAllUser = async (req, res) => {
         try {
           await client.connect();
           const filter = {};
-          const coll = client.db('isoDb').collection('user');
+          const coll = client.db('easyDb').collection('user');
           const cursor = coll.find(filter);
           const data = await cursor.toArray();
           // console.log(result);
@@ -95,7 +95,7 @@ const updateUser = async (req, res) => {
       );
   try {
     await client.connect();
-    const db = client.db('isoDb'); 
+    const db = client.db('easyDb'); 
     const collection = db.collection('user');
     const userId = req.params.id; 
     const updatedUser = req.body;
@@ -121,7 +121,7 @@ const deleteUser = async (req, res) => {
   );
   try {
     await client.connect();
-    const db = client.db('isoDb'); 
+    const db = client.db('easyDb'); 
     const collection = db.collection('user');
     const userId = req.params.id; 
     const filter = { _id: new ObjectId(userId) }; 

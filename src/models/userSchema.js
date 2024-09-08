@@ -1,9 +1,24 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+
 const userSchema = new mongoose.Schema({
-  email: String,
-  password: String
+  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  userStatusId: { type: Number, required: true },
+  address: { type: String, required: true },
+  userType: { type: Number, required: true },
+  usersLocationsId: { type: Number, required: true },
+  jobTitle: { type: String, required: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
+  email: { type: String, required: true, unique: true }, // Email should be unique
+  login: { type: String, required: true },
+  password: { type: String, required: true }, // Store password securely using hashing
+  ipRestrictions: { type: Boolean, required: true },
+  loginActive: { type: Boolean, required: true },
+  outOffice: { type: Boolean, required: true }
 });
+
 
 userSchema.pre(
   'save',
@@ -32,4 +47,4 @@ userSchema.methods.isEmailValid = async function(email) {
 };
 
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);
