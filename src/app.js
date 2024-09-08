@@ -15,7 +15,7 @@ const packageJson = require('../package.json');
 const port = process.env.PORT || 3001;
 const cors  = require('cors');
 
-const appVersion = process.env.APP_VERSION || packageJson.version;
+const appVersion = packageJson.version;
 
 const app = express();
 app.use(express.json()); 
